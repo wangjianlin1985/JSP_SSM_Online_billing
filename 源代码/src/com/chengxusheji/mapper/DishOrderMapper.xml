@@ -1,0 +1,50 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.DishOrderMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加点餐记录 -->
+	<insert id="addDishOrder" parameterType="dishOrder">
+		insert into t_dishOrder(dishObj,dishNum,dishMoney,orderMemo,userObj,orderTime,orderState) values 
+		(#{dishObj.dishNo},#{dishNum},#{dishMoney},#{orderMemo},#{userObj.user_name},#{orderTime},#{orderState})
+	</insert>
+
+	<!-- 按照查询条件分页查询点餐记录 -->
+	<select id="queryDishOrder" resultMap="dishOrderMap" >
+		select t_dishOrder.* from t_dishOrder,t_dish,t_userInfo ${where} and t_dishOrder.dishObj = t_dish.dishNo and t_dishOrder.userObj = t_userInfo.user_name limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="dishOrderMap" type="dishOrder">
+        <id property="orderId" column="orderId" />
+        <association property="dishObj" column="dishObj" select="com.chengxusheji.mapper.DishMapper.getDish" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有点餐记录 -->
+	<select id="queryDishOrderList" resultMap="dishOrderMap" >
+		select t_dishOrder.* from t_dishOrder,t_dish,t_userInfo ${where} and t_dishOrder.dishObj = t_dish.dishNo and t_dishOrder.userObj = t_userInfo.user_name
+	</select>
+
+    <!-- 按照查询条件的点餐记录数 -->
+	<select id="queryDishOrderCount" resultType="int">
+		select count(*) from t_dishOrder,t_dish,t_userInfo ${where} and t_dishOrder.dishObj = t_dish.dishNo and t_dishOrder.userObj = t_userInfo.user_name
+	</select>
+
+	<!-- 根据主键查询某个点餐记录 -->
+	<select id="getDishOrder" parameterType="int" resultMap="dishOrderMap">
+		select * from t_dishOrder where t_dishOrder.orderId = #{orderId}
+	</select>
+
+	<!-- 更新点餐记录 -->
+	<update id="updateDishOrder" parameterType="dishOrder">
+		update t_dishOrder set dishObj=#{dishObj.dishNo},dishNum=#{dishNum},dishMoney=#{dishMoney},orderMemo=#{orderMemo},userObj=#{userObj.user_name},orderTime=#{orderTime},orderState=#{orderState} where orderId = #{orderId}
+	</update>
+
+	<!-- 删除点餐记录 -->
+	<delete id="deleteDishOrder" parameterType="int">
+		delete from t_dishOrder where orderId=#{orderId}
+	</delete>
+
+</mapper>

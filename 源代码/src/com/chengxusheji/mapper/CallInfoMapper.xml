@@ -1,0 +1,56 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.CallInfoMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加呼叫网管记录 -->
+	<insert id="addCallInfo" parameterType="callInfo">
+		insert into t_callInfo(userObj,callTime,handFlag,handMemo) values 
+		(#{userObj.user_name},#{callTime},#{handFlag},#{handMemo})
+	</insert>
+
+	<!-- 按照查询条件分页查询呼叫网管记录 -->
+	<select id="queryCallInfo" resultMap="callInfoMap" >
+		select t_callInfo.* from t_callInfo,t_userInfo ${where} and t_callInfo.userObj = t_userInfo.user_name order by t_callInfo.callTime DESC limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="callInfoMap" type="callInfo">
+        <id property="callId" column="callId" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有呼叫网管记录 -->
+	<select id="queryCallInfoList" resultMap="callInfoMap" >
+		select t_callInfo.* from t_callInfo,t_userInfo ${where} and t_callInfo.userObj = t_userInfo.user_name
+	</select>
+
+    <!-- 按照查询条件的呼叫网管记录数 -->
+	<select id="queryCallInfoCount" resultType="int">
+		select count(*) from t_callInfo,t_userInfo ${where} and t_callInfo.userObj = t_userInfo.user_name
+	</select>
+
+	<!-- 根据主键查询某个呼叫网管记录 -->
+	<select id="getCallInfo" parameterType="int" resultMap="callInfoMap">
+		select * from t_callInfo where t_callInfo.callId = #{callId}
+	</select>
+	
+	<!-- 获取到最大的呼叫网管记录id -->
+	<select id="getMaxCallId" parameterType="int"  resultType="Integer">
+		select Max(callId) as callId from t_callInfo
+	</select>
+	
+	
+
+	<!-- 更新呼叫网管记录 -->
+	<update id="updateCallInfo" parameterType="callInfo">
+		update t_callInfo set userObj=#{userObj.user_name},callTime=#{callTime},handFlag=#{handFlag},handMemo=#{handMemo} where callId = #{callId}
+	</update>
+
+	<!-- 删除呼叫网管记录 -->
+	<delete id="deleteCallInfo" parameterType="int">
+		delete from t_callInfo where callId=#{callId}
+	</delete>
+
+</mapper>

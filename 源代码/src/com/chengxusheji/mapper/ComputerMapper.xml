@@ -1,0 +1,48 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.ComputerMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加计算机记录 -->
+	<insert id="addComputer" parameterType="computer">
+		insert into t_computer(computerNo,computerName,area,computerPhoto,computerDesc,computerState,addTime) values 
+		(#{computerNo},#{computerName},#{area},#{computerPhoto},#{computerDesc},#{computerState},#{addTime})
+	</insert>
+
+	<!-- 按照查询条件分页查询计算机记录 -->
+	<select id="queryComputer" resultMap="computerMap" >
+		select t_computer.* from t_computer ${where} limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="computerMap" type="computer">
+        <id property="computerNo" column="computerNo" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有计算机记录 -->
+	<select id="queryComputerList" resultMap="computerMap" >
+		select t_computer.* from t_computer ${where}
+	</select>
+
+    <!-- 按照查询条件的计算机记录数 -->
+	<select id="queryComputerCount" resultType="int">
+		select count(*) from t_computer ${where}
+	</select>
+
+	<!-- 根据主键查询某个计算机记录 -->
+	<select id="getComputer" parameterType="string" resultMap="computerMap">
+		select * from t_computer where t_computer.computerNo = #{computerNo}
+	</select>
+
+	<!-- 更新计算机记录 -->
+	<update id="updateComputer" parameterType="computer">
+		update t_computer set computerName=#{computerName},area=#{area},computerPhoto=#{computerPhoto},computerDesc=#{computerDesc},computerState=#{computerState},addTime=#{addTime} where computerNo = #{computerNo}
+	</update>
+
+	<!-- 删除计算机记录 -->
+	<delete id="deleteComputer" parameterType="string">
+		delete from t_computer where computerNo=#{computerNo}
+	</delete>
+
+</mapper>

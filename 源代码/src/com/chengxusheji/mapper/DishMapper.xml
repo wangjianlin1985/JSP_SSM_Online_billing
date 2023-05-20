@@ -1,0 +1,49 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.DishMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加菜品记录 -->
+	<insert id="addDish" parameterType="dish">
+		insert into t_dish(dishNo,dishClassObj,dishName,dishPhoto,dishPrice,tuijianFlag,upState,viewNum,dishDesc,addTime) values 
+		(#{dishNo},#{dishClassObj.dishClassId},#{dishName},#{dishPhoto},#{dishPrice},#{tuijianFlag},#{upState},#{viewNum},#{dishDesc},#{addTime})
+	</insert>
+
+	<!-- 按照查询条件分页查询菜品记录 -->
+	<select id="queryDish" resultMap="dishMap" >
+		select t_dish.* from t_dish,t_dishClass ${where} and t_dish.dishClassObj = t_dishClass.dishClassId limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="dishMap" type="dish">
+        <id property="dishNo" column="dishNo" />
+        <association property="dishClassObj" column="dishClassObj" select="com.chengxusheji.mapper.DishClassMapper.getDishClass" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有菜品记录 -->
+	<select id="queryDishList" resultMap="dishMap" >
+		select t_dish.* from t_dish,t_dishClass ${where} and t_dish.dishClassObj = t_dishClass.dishClassId
+	</select>
+
+    <!-- 按照查询条件的菜品记录数 -->
+	<select id="queryDishCount" resultType="int">
+		select count(*) from t_dish,t_dishClass ${where} and t_dish.dishClassObj = t_dishClass.dishClassId
+	</select>
+
+	<!-- 根据主键查询某个菜品记录 -->
+	<select id="getDish" parameterType="string" resultMap="dishMap">
+		select * from t_dish where t_dish.dishNo = #{dishNo}
+	</select>
+
+	<!-- 更新菜品记录 -->
+	<update id="updateDish" parameterType="dish">
+		update t_dish set dishClassObj=#{dishClassObj.dishClassId},dishName=#{dishName},dishPhoto=#{dishPhoto},dishPrice=#{dishPrice},tuijianFlag=#{tuijianFlag},upState=#{upState},viewNum=#{viewNum},dishDesc=#{dishDesc},addTime=#{addTime} where dishNo = #{dishNo}
+	</update>
+
+	<!-- 删除菜品记录 -->
+	<delete id="deleteDish" parameterType="string">
+		delete from t_dish where dishNo=#{dishNo}
+	</delete>
+
+</mapper>

@@ -1,0 +1,51 @@
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--namespace命名空间，为了对sql语句进行隔离，方便管理，mapper开发dao方式，使用namespace有特殊作用  
+mapper代理开发时将namespace指定为mapper接口的全限定名  
+ -->
+<mapper namespace="com.chengxusheji.mapper.ComputerUseMapper"> 
+<!--在mapper.xml文件中配置很多的sql语句，执行每个sql语句时，封装为MappedStatement对象 
+mapper.xml以statement为单位管理sql语句  
+ -->
+	<!-- 添加上机记录记录 -->
+	<insert id="addComputerUse" parameterType="computerUse">
+		insert into t_computerUse(userObj,computerObj,chargingObj,startTime,endTime,jiezhangFlag,useMoney,memo) values 
+		(#{userObj.user_name},#{computerObj.computerNo},#{chargingObj.chargingId},#{startTime},#{endTime},#{jiezhangFlag},#{useMoney},#{memo})
+	</insert>
+
+	<!-- 按照查询条件分页查询上机记录记录 -->
+	<select id="queryComputerUse" resultMap="computerUseMap" >
+		select t_computerUse.* from t_computerUse,t_charging,t_computer,t_userInfo ${where} and t_computerUse.userObj = t_userInfo.user_name and t_computerUse.computerObj = t_computer.computerNo and t_computerUse.chargingObj = t_charging.chargingId limit #{startIndex},#{pageSize}
+	</select>
+	<resultMap id="computerUseMap" type="computerUse">
+        <id property="cuId" column="cuId" />
+        <association property="userObj" column="userObj" select="com.chengxusheji.mapper.UserInfoMapper.getUserInfo" />
+        <association property="computerObj" column="computerObj" select="com.chengxusheji.mapper.ComputerMapper.getComputer" />
+        <association property="chargingObj" column="chargingObj" select="com.chengxusheji.mapper.ChargingMapper.getCharging" />
+    </resultMap>
+
+    <!-- 按照查询条件查询所有上机记录记录 -->
+	<select id="queryComputerUseList" resultMap="computerUseMap" >
+		select t_computerUse.* from t_computerUse,t_charging,t_computer,t_userInfo ${where} and t_computerUse.userObj = t_userInfo.user_name and t_computerUse.computerObj = t_computer.computerNo and t_computerUse.chargingObj = t_charging.chargingId
+	</select>
+
+    <!-- 按照查询条件的上机记录记录数 -->
+	<select id="queryComputerUseCount" resultType="int">
+		select count(*) from t_computerUse,t_charging,t_computer,t_userInfo ${where} and t_computerUse.userObj = t_userInfo.user_name and t_computerUse.computerObj = t_computer.computerNo and t_computerUse.chargingObj = t_charging.chargingId
+	</select>
+
+	<!-- 根据主键查询某个上机记录记录 -->
+	<select id="getComputerUse" parameterType="int" resultMap="computerUseMap">
+		select * from t_computerUse where t_computerUse.cuId = #{cuId}
+	</select>
+
+	<!-- 更新上机记录记录 -->
+	<update id="updateComputerUse" parameterType="computerUse">
+		update t_computerUse set userObj=#{userObj.user_name},computerObj=#{computerObj.computerNo},chargingObj=#{chargingObj.chargingId},startTime=#{startTime},endTime=#{endTime},jiezhangFlag=#{jiezhangFlag},useMoney=#{useMoney},memo=#{memo} where cuId = #{cuId}
+	</update>
+
+	<!-- 删除上机记录记录 -->
+	<delete id="deleteComputerUse" parameterType="int">
+		delete from t_computerUse where cuId=#{cuId}
+	</delete>
+
+</mapper>
